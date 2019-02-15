@@ -1,0 +1,3 @@
+# don't commit corpora (because of copyright reasons)
+pennTreebank/
+rst_discourse_treebank/
