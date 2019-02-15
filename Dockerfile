@@ -33,7 +33,16 @@ RUN patch -p0 < ../../../patches/rst-ptb.train.patch
 WORKDIR /opt/josydipa/dataset/rst/test
 RUN patch -p0 < ../../../patches/rst-ptb.test.patch
 
+# TODO: write/get a converter from .mrg to .cleangold files, cf. https://github.com/kaayy/josydipa/issues/2
 WORKDIR /opt/josydipa/dataset/ptb
-# RUN patch -p0 < ../../patches/ptb-rst.patch
+RUN patch -p0 < ../../patches/ptb-rst.patch
+
+WORKDIR /opt/josydipa
+RUN python src/tokenize_rst.py --rst_path dataset/rst/train && \
+    python src/tokenize_rst.py --rst_path dataset/rst/test
+
+RUN mkdir -p dataset/joint && \
+    python src/aligner.py --rst_path dataset/rst/train --const_path dataset/ptb > dataset/joint/train.txt && \
+    python src/aligner.py --rst_path dataset/rst/test --const_path dataset/ptb > dataset/joint/test.txt
 
 
