@@ -26,6 +26,10 @@ ADD rst_discourse_treebank/data/RSTtrees-WSJ-main-1.0/TRAINING/file5.dis /opt/jo
 # Apply patches to the RST Discourse Treebank files and Penn Treebank 
 # files. This step is necessary because there are some small mismatches 
 # between the RST Discourse tree texts and the Penn tree texts.
+ADD mrg2cleangold.py /opt/josydipa/
+
+RUN apk add python3 py3-pip parallel && \
+    pip3 install nltk==3.4
 
 WORKDIR /opt/josydipa/dataset/rst/train
 RUN patch -p0 < ../../../patches/rst-ptb.train.patch
@@ -33,9 +37,10 @@ RUN patch -p0 < ../../../patches/rst-ptb.train.patch
 WORKDIR /opt/josydipa/dataset/rst/test
 RUN patch -p0 < ../../../patches/rst-ptb.test.patch
 
-# TODO: write/get a converter from .mrg to .cleangold files, cf. https://github.com/kaayy/josydipa/issues/2
 WORKDIR /opt/josydipa/dataset/ptb
+RUN ls *.mrg | parallel ../../mrg2cleangold.py {} {.}.cleangold
 RUN patch -p0 < ../../patches/ptb-rst.patch
+
 
 WORKDIR /opt/josydipa
 RUN python src/tokenize_rst.py --rst_path dataset/rst/train && \
